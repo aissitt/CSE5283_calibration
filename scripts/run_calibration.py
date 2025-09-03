@@ -26,6 +26,8 @@ def main():
     ap.add_argument("--out_json", type=str, default="data/results/calibration.json", help="Output calibration JSON")
     ap.add_argument("--preview_image", type=str, default=None, help="One image to undistort (saves side-by-side)")
     ap.add_argument("--preview_out", type=str, default="data/results/undistort_preview.jpg")
+    ap.add_argument("--undistort_alpha", type=float, default=0.5, help="Alpha (balance) for getOptimalNewCameraMatrix: 0.0..1.0")
+    ap.add_argument("--undistort_center_pp", action="store_true", help="Center principal point in new camera matrix")
     ap.add_argument("--use_rational_model", action="store_true", help="Enable CALIB_RATIONAL_MODEL")
     args = ap.parse_args()
 
@@ -70,7 +72,11 @@ def main():
             raise FileNotFoundError(f"preview_image not found: {args.preview_image}")
         K = np.array(calib["K"], dtype=float)
         dist = np.array(calib["dist"], dtype=float).reshape(-1, 1)
-        und, newK = undistort_image(img, K, dist, balance=0.0)
+        und, newK = undistort_image(
+            img, K, dist,
+            balance=args.undistort_alpha,
+            center_pp=args.undistort_center_pp,
+        )
         side_by_side = np.hstack([img, und])
         os.makedirs(os.path.dirname(args.preview_out), exist_ok=True)
         cv2.imwrite(args.preview_out, side_by_side)

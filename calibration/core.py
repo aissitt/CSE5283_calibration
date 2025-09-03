@@ -45,8 +45,23 @@ def compute_per_image_errors(
     return errors
 
 
-def undistort_image(img_bgr, K, dist, balance: float = 0.0):
+def undistort_image(img_bgr, K, dist, balance: float = 0.5, center_pp: bool = True):
+    """Undistort an image using the provided calibration.
+
+    Args:
+        img_bgr: input BGR image.
+        K: camera matrix.
+        dist: distortion coefficients.
+        balance: alpha parameter passed to cv2.getOptimalNewCameraMatrix (0.0..1.0).
+                 0.0 crops to the valid region (zoomed), 1.0 keeps full FOV (may add borders).
+        center_pp: whether to center the principal point in the new camera matrix.
+
+    Returns:
+        (undistorted_image, new_camera_matrix)
+    """
     h, w = img_bgr.shape[:2]
-    newK, _ = cv2.getOptimalNewCameraMatrix(K, dist, (w, h), alpha=balance, newImgSize=(w, h))
+    newK, _ = cv2.getOptimalNewCameraMatrix(
+        K, dist, (w, h), alpha=float(balance), newImgSize=(w, h), centerPrincipalPoint=bool(center_pp)
+    )
     und = cv2.undistort(img_bgr, K, dist, None, newK)
     return und, newK

@@ -67,7 +67,7 @@ def main():
                        help="Inner corners across (columns)")
     parser.add_argument("--rows", type=int, default=6, 
                        help="Inner corners down (rows)")
-    parser.add_argument("--square_size", type=float, default=25.0,
+    parser.add_argument("--square_size", type=float, default=22.0,
                        help="Square size in millimeters")
     parser.add_argument("--calibration_json", default="data/results/calibration.json",
                        help="Path to calibration JSON file")
@@ -109,7 +109,8 @@ def main():
     if args.axis_length_mm is not None:
         print(f"Axis length override: {args.axis_length_mm} mm")
     else:
-        print(f"Axis length: default (10 * square_size = 250 mm)")
+        # Reflect new default (10 * square_size)
+        print(f"Axis length: default (10 * square_size = {int(10 * args.square_size)} mm)")
     print(f"Origin mode: {args.origin_mode}")
     print(f"Thickness: {'auto' if args.thickness is None else args.thickness}")
     

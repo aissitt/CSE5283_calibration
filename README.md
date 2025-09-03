@@ -43,7 +43,7 @@ calibration/utils.py mirrors key helpers from Prof. Ribeiro’s pinhole camera n
 
 ```bash
 conda activate calibration
-python scripts/run_calibration.py --images_dir data/images --cols 9 --rows 6 --square_size 25.0 --visualize_corners_to data/results/corners --out_json data/results/calibration.json
+python scripts/run_calibration.py --images_dir data/images --cols 9 --rows 6 --square_size 22.0 --visualize_corners_to data/results/corners --out_json data/results/calibration.json
 ```
 
 Corner overlays appear in `data/results/corners/`. `calibration.json` contains K, distortion, rvecs/tvecs for Lamine’s pose vis and Blake's Gradio UI.

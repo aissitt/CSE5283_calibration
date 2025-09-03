@@ -332,7 +332,8 @@ def overlay_axes_on_calibration_images(
     # Use a visually meaningful default axis length: 10 squares of the chessboard
     if axis_length is None or axis_length <= 0:
         cols, rows = (calib.get("pattern_size", [9, 6]) or [9, 6])
-        square = float(calib.get("square_size", 25.0))
+        # default square size (mm)
+        square = float(calib.get("square_size", 22.0))
         # Use a larger scale factor for better visibility, similar to reference notebook
         # Scale factor of 10 makes axes clearly visible
         scale_factor = 10.0
@@ -357,7 +358,7 @@ def overlay_axes_on_calibration_images(
     origin_world = (0.0, 0.0, 0.0)
     if len(pattern_size) == 2:
         cols, rows = pattern_size
-        square = float(calib.get("square_size", 25.0))
+        square = float(calib.get("square_size", 22.0))
         if origin_mode.lower() == "center":
             origin_world = (
                 (cols-1) * square * 0.5,

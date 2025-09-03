@@ -18,7 +18,7 @@ _PROJECT_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 if _PROJECT_ROOT not in sys.path:
     sys.path.insert(0, _PROJECT_ROOT)
 
-from calibration.pose_viz import visualize_calibration_poses
+from calibration.simple_pose_viz import simple_pose_visualization
 
 
 def main():
@@ -55,12 +55,11 @@ def main():
     print(f"Show 2D: {args.show_2d}")
     
     try:
-        # Create visualizations
-        figures = visualize_calibration_poses(
+        # Create simple visualization
+        figures = simple_pose_visualization(
             args.calibration_json,
             args.output_dir,
-            args.show_3d,
-            args.show_2d
+            args.interactive
         )
         
         print(f"\nSUCCESS! Created {len(figures)} visualization(s)")

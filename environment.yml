@@ -1,0 +1,14 @@
+name: calibration
+channels:
+  - conda-forge
+  - defaults
+dependencies:
+  - python=3.10
+  - numpy
+  - opencv
+  - matplotlib
+  - opencv-python
+  - tqdm
+  - pip
+  - pip:
+      - pytransform3d   # maybe?

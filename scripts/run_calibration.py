@@ -21,7 +21,7 @@ def main():
     ap.add_argument("--images_dir", type=str, default="data/images", help="Folder with .jpeg chessboard images")
     ap.add_argument("--cols", type=int, default=9, help="Inner corners across (columns)")
     ap.add_argument("--rows", type=int, default=6, help="Inner corners down (rows)")
-    ap.add_argument("--square_size", type=float, default=25.0, help="Square size in millimeters")
+    ap.add_argument("--square_size", type=float, default=22.0, help="Square size in millimeters")
     ap.add_argument("--visualize_corners_to", type=str, default="data/results/corners", help="Save drawn corners here")
     ap.add_argument("--out_json", type=str, default="data/results/calibration.json", help="Output calibration JSON")
     ap.add_argument("--preview_image", type=str, default=None, help="One image to undistort (saves side-by-side)")

@@ -13,11 +13,13 @@ Run
 python scripts/run_calibration.py \
 	--images_dir data/images \
 	--cols 9 --rows 6 \
-	--square_size 25.0 \
+	--square_size 22.0 \
 	--visualize_corners_to data/results/corners \
 	--out_json data/results/calibration.json \
 	--preview_image data/images/1.jpg \
-	--preview_out data/results/undistort_preview.jpg
+	--preview_out data/results/undistort_preview.jpg \
+	--undistort_alpha 0.85 \
+	--undistort_center_pp
 ```
 
 Outputs

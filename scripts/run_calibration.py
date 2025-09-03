@@ -29,6 +29,15 @@ def main():
     ap.add_argument("--undistort_alpha", type=float, default=0.5, help="Alpha (balance) for getOptimalNewCameraMatrix: 0.0..1.0")
     ap.add_argument("--undistort_center_pp", action="store_true", help="Center principal point in new camera matrix")
     ap.add_argument("--use_rational_model", action="store_true", help="Enable CALIB_RATIONAL_MODEL")
+    # Auto-select rational model by default; provide a flag to disable it
+    ap.add_argument("--auto_rational", action="store_true", default=True,
+                    help="Try both models and choose one based on reprojection error (default: enabled)")
+    ap.add_argument("--no_auto_rational", dest="auto_rational", action="store_false",
+                    help="Disable automatic model selection and use manual flag (--use_rational_model)")
+    ap.add_argument("--min_improve_pct", type=float, default=3.0,
+                    help="Minimum % RMS improvement to justify the more complex model (rational)")
+    ap.add_argument("--min_improve_px", type=float, default=0.05,
+                    help="Minimum absolute RMS improvement in pixels to justify rational")
     args = ap.parse_args()
 
     pattern_size = (args.cols, args.rows)
@@ -46,22 +55,83 @@ def main():
     )
     print(f"Detected corners in {len(imgpoints)} images; overlays saved for {len(used_paths)} files")
 
-    flags = 0
-    if args.use_rational_model:
-        flags |= cv2.CALIB_RATIONAL_MODEL
+    # Helper that runs calibration with a label and flags
+    def _run_calib(label, flags):
+        calib = calibrate(
+            pattern_size=pattern_size,
+            square_size=args.square_size,
+            imgpoints=imgpoints,
+            image_size=image_size,
+            flags=flags
+        )
+        return calib, flags, label
+
+    # Prepare flags for baseline and rational models
+    base_flags = 0
+    rational_flags = 0 | cv2.CALIB_RATIONAL_MODEL
 
     print("[2/3] Calibrating...")
-    calib = calibrate(
-        pattern_size=pattern_size,
-        square_size=args.square_size,
-        imgpoints=imgpoints,
-        image_size=image_size,
-        flags=flags
-    )
+    if args.auto_rational:
+        calib_base, flags_base, label_base = _run_calib("baseline_5param", base_flags)
+        calib_rat,  flags_rat,  label_rat  = _run_calib("rational_8param", rational_flags)
+
+        rms_b = float(calib_base["rms"])
+        rms_r = float(calib_rat["rms"])
+        mean_rmse_b = float(np.mean(calib_base.get("per_image_reproj_rmse", [rms_b])))
+        mean_rmse_r = float(np.mean(calib_rat.get("per_image_reproj_rmse", [rms_r])))
+
+        rel_improve_pct = 100.0 * (rms_b - rms_r) / max(rms_b, 1e-9)
+        abs_improve_px = (rms_b - rms_r)
+
+        use_rational = (rel_improve_pct >= args.min_improve_pct) and (abs_improve_px >= args.min_improve_px)
+
+        if use_rational:
+            calib, chosen_flags, chosen_label = calib_rat, flags_rat, label_rat
+        else:
+            calib, chosen_flags, chosen_label = calib_base, flags_base, label_base
+
+        calib["model_selection"] = {
+            "auto_rational": True,
+            "chosen": chosen_label,
+            "baseline": {
+                "rms": rms_b,
+                "mean_per_image_rmse": mean_rmse_b,
+                "dist_len": len(calib_base["dist"])
+            },
+            "rational": {
+                "rms": rms_r,
+                "mean_per_image_rmse": mean_rmse_r,
+                "dist_len": len(calib_rat["dist"])
+            },
+            "criteria": {
+                "min_improve_pct": args.min_improve_pct,
+                "min_improve_px": args.min_improve_px,
+                "rel_improve_pct": rel_improve_pct,
+                "abs_improve_px": abs_improve_px
+            }
+        }
+
+        print(f"Baseline RMS = {rms_b:.4f}  |  Rational RMS = {rms_r:.4f}")
+        print(f"ΔRMS = {abs_improve_px:.4f} px ({rel_improve_pct:.2f}%)  ->  selected: {chosen_label}")
+    else:
+        # Keep existing (manual) behavior
+        chosen_flags = 0
+        if args.use_rational_model:
+            chosen_flags |= cv2.CALIB_RATIONAL_MODEL
+        calib, _, _ = _run_calib("manual_flag", chosen_flags)
+        calib["model_selection"] = {
+            "auto_rational": False,
+            "chosen": "manual_flag",
+            "baseline": None,
+            "rational": None,
+            "criteria": None
+        }
     os.makedirs(os.path.dirname(args.out_json), exist_ok=True)
     save_calibration_json(calib, args.out_json)
     print(f"Saved calibration to {args.out_json}")
-    print(f"RMS reprojection error: {calib['rms']:.4f}")
+    print(f"RMS reprojection error (chosen): {calib['rms']:.4f}")
+    print(f"Distortion length (chosen): {len(calib['dist'])}  "
+          f"[{'rational_8param' if len(calib['dist'])>=8 else 'baseline_5param'}]")
     if 'per_image_reproj_rmse' in calib:
         print(f"Mean per-image RMSE: {np.mean(calib['per_image_reproj_rmse']):.4f}")
 

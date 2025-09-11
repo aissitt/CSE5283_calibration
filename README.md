@@ -1,5 +1,6 @@
 # CSE5283_calibration
-Camera calibration core (Ari). OpenCV pipeline with small utilities and demo scripts. The Gradio UI (`camera_ui.ipynb`) and simple 3D pose visualization are included for quick inspection.
+# Assignment 1
+Camera calibration core. OpenCV pipeline with small utilities and demo scripts. The Gradio UI (`camera_ui.ipynb`) and simple 3D pose visualization are included for quick inspection.
 
 ## Setup (Conda)
 ```bash
@@ -90,3 +91,15 @@ Open `data/results/corners/` to verify corner detection, then run the axes/pose 
 - Pattern size uses inner corners (OpenCV).
 - Square size is in millimeters.
 - The repo's helpers (in `calibration/`) follow a compact API so the code can be extended or embedded in other tools.
+
+# Assignment 2
+## Assignment 2: Gradio UI Workflow
+
+The notebook `notebooks/assignment2_ui.ipynb` provides a multi-tab Gradio interface for planar pose estimation. Follow these steps:
+
+1. **Calibration Tab**: Run calibration on chessboard images and save the intrinsics (`K`, `distCoeffs`) as a JSON file.
+2. **Model Plane Tab**: Generate or load model points (checkerboard or custom), then save them as a CSV or JSON file.
+3. **Pose on Image Tab**: Load a sample image, the saved intrinsics JSON, and the saved model points file. Click points in the image in the same order as the model. Run pose estimation to see overlays and pose results.
+4. **Compare & 3D Viz Tab**: View numeric comparison and 3D visualization of the computed poses.
+
+This workflow ensures you use the correct calibration and model data for pose estimation and visualization. Each tab guides you through the required steps interactively.

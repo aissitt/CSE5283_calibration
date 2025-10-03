@@ -103,3 +103,15 @@ The notebook `notebooks/assignment2_ui.ipynb` provides a multi-tab Gradio interf
 4. **Compare & 3D Viz Tab**: View numeric comparison and 3D visualization of the computed poses.
 
 This workflow ensures you use the correct calibration and model data for pose estimation and visualization. Each tab guides you through the required steps interactively.
+
+# Assignment 4
+
+## Assignment 4: AR Overlay / Rendering (Colab Instructions)
+
+For Assignment 4, open the provided notebook (e.g. `Assignment4.ipynb` or the updated `AutoCalibration_and_Poses.ipynb`) in **Google Colab** on the `assignment4` branch and simply **run all cells top-to-bottom** to reproduce the calibration, pose export, and AR (PyTorch3D) overlay results.
+
+### Notes
+- If you add your own chessboard photos, upload them into `data/images/` before running the calibration cell.
+- Adjust `SCALE_FRAC`, `ORIENT_DEG`, or `UPRIGHT_EULER_DEG` in the AR config cell to change model size/orientation.
+- Outputs appear under `data/results/` (`poses.csv`, `poses_matrices.json`, undistort previews, axes overlays, AR composite images).
+- If textures appear white, ensure the `.mtl` file and any texture image files reside beside the `.obj` in `data/`.
